@@ -5,6 +5,7 @@ import axios from "axios";
 type Istate = {
   business: any[];
   popular_business: any[];
+  mybusiness: any[];
   business_detail: {} | null;
   loading: boolean;
   errors: any[];
@@ -14,8 +15,9 @@ type Istate = {
 const initialState: Istate = {
   business: [],
   popular_business: [],
+  mybusiness: [],
   business_detail: null,
-  loading: true,
+  loading: false,
   errors: [],
   errorField: null,
 };
@@ -79,6 +81,92 @@ export const postRating = createAsyncThunk(
   },
 );
 
+export const storeBusiness = createAsyncThunk(
+  "businessSlice/storeBusiness",
+  async (payload: any, { rejectWithValue }) => {
+    try {
+      const token = await storageGetData("token");
+      const formData = new FormData();
+
+      for (const key in payload) {
+        if (payload.hasOwnProperty(key)) {
+          formData.append(key, payload[key]);
+        }
+      }
+
+      if (payload.image) {
+        formData.append("image", payload.image);
+      } else {
+        formData.append("image", payload.image);
+      }
+      const response = await axios.post(
+        `${process.env.EXPO_PUBLIC_API_URL}/business`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+
+      return response.data;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data);
+      }
+      return rejectWithValue({ message: error.message });
+    }
+  },
+);
+
+export const getBusinessByUser = createAsyncThunk(
+  "businessSlice/getBusinessByUser",
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = await storageGetData("token");
+      const response = await axios.get(
+        `${process.env.EXPO_PUBLIC_API_URL}/my-business`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      return response.data;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data);
+      }
+      return rejectWithValue({ message: error.message });
+    }
+  },
+);
+
+export const deleteBusinessByUser = createAsyncThunk(
+  "businessSlice/deleteBusiness",
+  async (payload: string | number, { rejectWithValue, dispatch }) => {
+    try {
+      const token = await storageGetData("token");
+      const response = await axios.delete(
+        `${process.env.EXPO_PUBLIC_API_URL}/business/${payload}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+      await dispatch(getBusinessByUser());
+      return response.data;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        return rejectWithValue(error.response.data);
+      }
+      return rejectWithValue({ message: error.message });
+    }
+  },
+);
+
 const businessSlice = createSlice({
   name: "businessSlice",
   initialState: initialState,
@@ -118,6 +206,40 @@ const businessSlice = createSlice({
         };
       })
       .addCase(postRating.rejected, (state, action: any) => {
+        console.log("reject", action);
+        state.loading = false;
+        state.errorField = action.payload || action.error.message;
+      })
+      .addCase(storeBusiness.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(storeBusiness.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(storeBusiness.rejected, (state, action: any) => {
+        console.log("reject", action);
+        state.loading = false;
+        state.errorField = action.payload || action.error.message;
+      })
+      .addCase(getBusinessByUser.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getBusinessByUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.mybusiness = action.payload.data;
+      })
+      .addCase(getBusinessByUser.rejected, (state, action: any) => {
+        console.log("reject", action);
+        state.loading = false;
+        state.errorField = action.payload || action.error.message;
+      })
+      .addCase(deleteBusinessByUser.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deleteBusinessByUser.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(deleteBusinessByUser.rejected, (state, action: any) => {
         console.log("reject", action);
         state.loading = false;
         state.errorField = action.payload || action.error.message;

@@ -1,0 +1,30 @@
+{
+    "build": {
+      "preview": {
+        "android": {
+          "buildType": "apk"
+        },
+        "env": {
+          "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "515286698568-j9ltmpve9rei9ba9e4p722juj0dq4n2c.apps.googleusercontent.com",
+          "EXPO_PUBLIC_API_URL": "http://192.168.50.44:8000/api"
+        }
+      },
+      "preview2": {
+        "android": {
+          "gradleCommand": ":app:assembleRelease"
+        },
+        "env": {
+          "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "515286698568-j9ltmpve9rei9ba9e4p722juj0dq4n2c.apps.googleusercontent.com",
+          "EXPO_PUBLIC_API_URL": "http://192.168.50.44:8000/api"
+        }
+      },
+      "preview3": {
+        "developmentClient": true
+      },
+      "preview4": {
+        "distribution": "internal"
+      },
+      "production": {}
+    }
+  }
+  

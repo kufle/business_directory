@@ -65,11 +65,6 @@ export default function Login() {
     }
   };
 
-  const logout = async () => {
-    console.log("logout");
-    await GoogleSignin.signOut();
-  };
-
   return (
     <View style={styles.pages}>
       <View style={styles.imageContainer}>
