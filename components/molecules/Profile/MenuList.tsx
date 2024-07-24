@@ -69,7 +69,7 @@ export default function MenuList() {
           style: "cancel",
         },
         {
-          text: "Delete",
+          text: "Logout",
           style: "destructive",
           onPress: () => logout(),
         },
